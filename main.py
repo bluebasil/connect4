@@ -1,9 +1,12 @@
 from connect4 import *
 from player import *
+from copy import deepcopy
 
 players = []
+#players.append(Connect4Manual('y'))
+#players.append(Connect4Manual('r'))
+players.append(Connect4('r'))
 players.append(Connect4Manual('y'))
-players.append(Connect4Manual('r'))
 
 grid = []
 for i in range(7):
@@ -14,11 +17,14 @@ for i in range(7):
 
 while True:
     for p in players:
-        move = p.play(grid)
+        temp_grid = deepcopy(grid)
+        move = p.play(temp_grid)
         spot = 0
         while grid[move][spot] != '':
             if spot == 5:
                 print("tried to add to full column")
+                print(grid)
+                exit()
                 break
             spot += 1
         grid[move][spot] = p.mark
