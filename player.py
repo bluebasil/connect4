@@ -1,4 +1,5 @@
 from errors import *
+import sys
 
 
 class Connect4Manual:
@@ -20,6 +21,7 @@ class Connect4Manual:
     
     
     def play(self, grid):
+        print(self.convert(grid))
         """
         Will decide the best next move
         
@@ -41,5 +43,29 @@ class Connect4Manual:
         return move
 
     def print_grid(self, grid):
+
+        #for col in grid:
+        #    print(col)
+        print("---------")
+        for row_num in range(5,-1,-1):
+            row = [column[row_num] for column in grid]
+            print("|", end='')
+            for c in row:
+                s = " "
+                if c == 'y':
+                    #sys.stdout.buffer.write(TestText2)
+                    s = chr(48)
+                    #s = b'●'
+                elif c == 'r':
+                    #sys.stdout.buffer.write(TestText2)
+                    s = chr(160)
+                    #s = b'○'
+                print(s,end='')
+            print("|")
+        print("|0123456|")
+
+    def convert(self, grid):
+        columns = []
         for col in grid:
-            print(col)
+            columns.append(tuple(col))
+        return tuple(columns)
