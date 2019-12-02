@@ -1,7 +1,9 @@
-from connect4 import *
+from connect4Basic import *
 from player import *
 from copy import deepcopy
 from connect4TimeSensitivey import Connect4 as connect4TS
+from connect4Slim import Connect4 as connect4Slim
+from connect4AltFunc import Connect4 as connect4AF
 from datetime import datetime, timedelta
 
 def print_grid(grid):
@@ -88,8 +90,11 @@ players = []
 #players.append(Connect4Manual('r'))
 
 
+
 players.append(connect4TS('r'))
-players.append(connect4TS('y'))
+#players.append(Connect4Manual('r'))
+players.append(connect4AF('y'))
+
 
 grid = []
 for i in range(7):
@@ -103,7 +108,7 @@ for i in range(7):
 #        ['y','r','y','r','',''],
 #        ['r','y','r','y','',''],
 #        ['r','y','r','y','',''],
-##        ['y','r','y','r','',''],
+#        ['y','r','y','r','',''],
 #        ['y','r','y','r','',''],
 #        ['r','y','r','y','','']
 #        ]
