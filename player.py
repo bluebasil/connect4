@@ -21,7 +21,6 @@ class Connect4Manual:
     
     
     def play(self, grid):
-        print(self.convert(grid))
         """
         Will decide the best next move
         
