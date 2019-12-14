@@ -18,6 +18,9 @@ class Connect4Manual:
         """
         
         self.mark = mark
+
+    def get_player_id(self):
+        return self.mark
     
     
     def play(self, grid):
@@ -57,7 +60,7 @@ class Connect4Manual:
                     #s = b'●'
                 elif c == 'r':
                     #sys.stdout.buffer.write(TestText2)
-                    s = chr(160)
+                    s = 'X'
                     #s = b'○'
                 print(s,end='')
             print("|")

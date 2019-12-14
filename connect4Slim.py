@@ -57,6 +57,9 @@ class Connect4:
                         }}
         self.last_move = None
         #self.workers = {3:None, 5:None, 7:None}
+
+    def get_player_id(self):
+        return self.mark
     
     def play(self, grid):
         """

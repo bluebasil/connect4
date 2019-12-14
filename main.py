@@ -1,10 +1,12 @@
 from connect4Basic import *
 from player import *
 from copy import deepcopy
-from connect4TimeSensitivey import Connect4 as connect4TS
+#from connect4TimeSensitivey import Connect4 as connect4TS
 from connect4Slim import Connect4 as connect4Slim
 from connect4AltFunc import Connect4 as connect4AF
+from connect4Fast import Connect4 as connect4Fast
 from datetime import datetime, timedelta
+from connect4AlphaBeta import Connect4 as connect4AB
 
 def print_grid(grid):
 
@@ -18,11 +20,11 @@ def print_grid(grid):
             s = " "
             if c == 'y':
                 #sys.stdout.buffer.write(TestText2)
-                s = chr(48)
+                s = 'O'
                 #s = b'●'
             elif c == 'r':
                 #sys.stdout.buffer.write(TestText2)
-                s = chr(160)
+                s = 'X'
                 #s = b'○'
             print(s,end='')
         print("|")
@@ -91,9 +93,11 @@ players = []
 
 
 
-players.append(connect4TS('r'))
-#players.append(Connect4Manual('r'))
-players.append(connect4AF('y'))
+
+players.append(Connect4Manual('r'))
+
+#players.append(connect4Fast('r'))
+players.append(connect4AB('y'))
 
 
 grid = []
@@ -117,12 +121,13 @@ while True:
     for p in players:
         print_grid(grid)
         if check_win(grid) is not None:
+            print(grid)
             print(check_win(grid), " wins")
             exit()
         temp_grid = deepcopy(grid)
-        print("Start: ", datetime.now(), flush=True)
+        #print("Start: ", datetime.now(), flush=True)
         move = p.play(temp_grid)
-        print("End: ", datetime.now(), flush=True)
+        #print("End: ", datetime.now(), flush=True)
         spot = 0
         while grid[move][spot] != '':
             if spot == 5:
@@ -131,7 +136,7 @@ while True:
                 exit()
                 break
             spot += 1
-        grid[move][spot] = p.mark
+        grid[move][spot] = p.get_player_id()
         
 
 

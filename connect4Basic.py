@@ -32,6 +32,9 @@ class Connect4:
         
         self.mark = mark
         self.worst_score = -self.map_dir(mark)*math.inf
+
+    def get_player_id(self):
+        return self.mark
     
     
     def play(self, grid):

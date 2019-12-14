@@ -26,6 +26,7 @@ class Connect4:
     You can add as much code as you wish. Just keep the inital code given to you
     """
     DEBUG = False
+    dif = 5
     
     def __init__(self, mark):
         """
@@ -36,7 +37,7 @@ class Connect4:
         
         self.mark = mark
         self.worst_score = -self.map_dir(mark)*math.inf
-        self.calculations = {3:{}, 5:{}, 7:{
+        self.calculations = {self.dif:{
                         (('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', '')):4,
                         (('r', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', '')):1,
                         (('y', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', ''), ('', '', '', '', '', '')):1,
@@ -55,9 +56,6 @@ class Connect4:
                         }}
         self.last_move = None
         #self.workers = {3:None, 5:None, 7:None}
-
-    def get_player_id(self):
-        return self.mark
     
     def play(self, grid):
         """
@@ -70,8 +68,8 @@ class Connect4:
         timeout = datetime.now()
         
         self.check_for_errors(grid)
-        self.trigger_calculation(grid, 5, 60)
-        self.trigger_calculation(grid, 3, 60)
+        self.trigger_calculation(grid, self.dif, 60)
+        #self.trigger_calculation(grid, 3, 60)
         tuple_grid = self.convert(grid)
 
 
@@ -89,12 +87,15 @@ class Connect4:
         ideal_move = self.get_move(tuple_grid, grid)
         new_grid = self.execute_move(grid, self.mark, ideal_move)
         self.last_move = new_grid
-        self.trigger_calculation(new_grid, 7, 120, opponents_turn=True)
+        #self.trigger_calculation(new_grid, 7, 120, opponents_turn=True)
         if self.DEBUG:
             print(f"turn end at time: {(datetime.now()-timeout).total_seconds()}s", flush=True)
         
 
         return ideal_move
+
+    def get_player_id(self):
+        return self.mark
 
     def check_for_errors(self, grid):
         if type(grid) is not list:
@@ -112,7 +113,7 @@ class Connect4:
         if self.check_win(grid) is not None:
             raise GameIsOver()
         tuple_grid = self.convert(grid)
-        if self.last_move is None and tuple_grid not in self.calculations[7]:
+        if self.last_move is None and tuple_grid not in self.calculations[self.dif]:
             raise InvalidMove("game started with too many moves on the board")
 
         move_found = False
@@ -141,16 +142,17 @@ class Connect4:
 
 
     def get_best_move(self, tuple_grid):
-        if tuple_grid in self.calculations[7]:
-            return self.calculations[7][tuple_grid]
+        if tuple_grid in self.calculations[self.dif]:
+            return self.calculations[self.dif][tuple_grid]
         return None
 
     def get_move(self, tuple_grid, grid):
-        for calc in (7,5,3):
-            if tuple_grid in self.calculations[calc]:
-                if self.DEBUG:
-                    print(f"{self.mark} chosen calculation: {int((calc-1)/2)}/3", flush=True)
-                return self.calculations[calc][tuple_grid]
+        #for calc in (3):
+        calc = self.dif
+        if tuple_grid in self.calculations[calc]:
+            if self.DEBUG:
+                print(f"{self.mark} chosen calculation: {int((calc-1)/2)}/3", flush=True)
+            return self.calculations[calc][tuple_grid]
         if self.DEBUG:
             print(f"{self.mark} ran out of time. chosen calculation random", flush=True)
         for i, c in enumerate(grid):
