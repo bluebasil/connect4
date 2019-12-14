@@ -17,7 +17,7 @@ class Connect4(AlphaBeta.Alpha_Beta):
         return ideal_move
 
     def get_player_ids(self):
-        return ['x', 'o']
+        return ['x', 'y', 'z']
 
     def get_next_player(self, player_id):
         next_player_id = self.get_player_ids()[self.get_player_ids().index(player_id)-1]

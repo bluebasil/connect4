@@ -6,8 +6,7 @@ from connect4Slim import Connect4 as connect4Slim
 from connect4AltFunc import Connect4 as connect4AF
 from connect4Fast import Connect4 as connect4Fast
 from datetime import datetime, timedelta
-from connect4AlphaBeta import Connect4 as connect4AB
-from connect4Monte import Connect4 as connect4MC
+from connect4ThreePlayer import Connect4 as connect4AB
 
 def print_grid(grid):
 
@@ -19,13 +18,15 @@ def print_grid(grid):
         print("|", end='')
         for c in row:
             s = " "
-            if c == 'o':
-                #sys.stdout.buffer.write(TestText2)
-                s = 'O'
-                #s = b'●'
-            elif c == 'x':
+            if c == 'x':
                 #sys.stdout.buffer.write(TestText2)
                 s = 'X'
+                #s = b'●'
+            elif c == 'y':
+                #sys.stdout.buffer.write(TestText2)
+                s = 'O'
+            elif c == 'z':
+                s = '#'
                 #s = b'○'
             print(s,end='')
         print("|")
@@ -95,10 +96,12 @@ players = []
 
 
 
-players.append(connect4MC('x'))
+#players.append(Connect4Manual('r'))
 
 #players.append(connect4Fast('r'))
-players.append(Connect4Manual('o'))
+players.append(connect4AB('z'))
+players.append(connect4AB('y'))
+players.append(connect4AB('x'))
 
 
 grid = []

@@ -1,8 +1,8 @@
-import AlphaBeta
+import MonteCarlo
 import copy
 import math
 
-class Connect4(AlphaBeta.Alpha_Beta):
+class Connect4(MonteCarlo.Monte_Carlo):
 
     max_depth = 5
 
@@ -43,7 +43,7 @@ class Connect4(AlphaBeta.Alpha_Beta):
         score_table = {}
         if self.check_tie(board):
             for player_id in self.get_player_ids():
-                score_table[player_id] = 0
+                score_table[player_id] = None
             return score_table
         else:
             for player_id in self.get_player_ids():

@@ -54,11 +54,11 @@ class Connect4Manual:
             print("|", end='')
             for c in row:
                 s = " "
-                if c == 'y':
+                if c == 'o':
                     #sys.stdout.buffer.write(TestText2)
-                    s = chr(48)
+                    s = 'O'
                     #s = b'●'
-                elif c == 'r':
+                elif c == 'x':
                     #sys.stdout.buffer.write(TestText2)
                     s = 'X'
                     #s = b'○'
