@@ -119,3 +119,9 @@ class Connect4(MonteCarlo.Monte_Carlo):
             for key in contenders:
                 if key != '':
                     score_table[key] += (contenders[key] ** 2)
+
+    def get_board_string(self, board):
+        column_strings = []
+        for column in board:
+            column_strings.append("/".join(column))
+        return "|".join(column_strings)

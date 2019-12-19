@@ -97,8 +97,8 @@ players = []
 
 players.append(connect4MC('x'))
 
-#players.append(connect4Fast('r'))
-players.append(Connect4Manual('o'))
+players.append(connect4AB('o'))
+#players.append(Connect4Manual('o'))
 
 
 grid = []

@@ -3,12 +3,17 @@ import copy
 from threading import Thread
 import queue
 import random
+from datetime import datetime, timedelta
 
 class Monte_Carlo:
 
     worst_score_table = None
 
-    async_on = False
+    async_on = True
+
+    node_catalogue = {}
+
+    time_limit = 5
 
     class monteNode:
         def __init__(self):
@@ -19,6 +24,7 @@ class Monte_Carlo:
             self.move_id = -1
             self.owner = 'y'
             self.leaf_node = False
+            self.winner = None
 
     def create_monte_child(self, node):
         for move_id, next_board_state in self.get_next_moveset(node.board_state, node.owner):
@@ -30,9 +36,12 @@ class Monte_Carlo:
             for pid in self.get_player_ids():
                 empty_stats[pid] = 0
             new_child.win_stats = empty_stats
+
+            self.node_catalogue[self.get_board_string(next_board_state)] = new_child
             node.children.append(new_child)
 
     def create_root_node(self, board, owner):
+
         new_node = self.monteNode()
         new_node.board_state = board
         new_node.owner = owner
@@ -40,12 +49,17 @@ class Monte_Carlo:
         for pid in self.get_player_ids():
             empty_stats[pid] = 0
         new_node.win_stats = empty_stats
+
+        self.node_catalogue[self.get_board_string(board)] = new_node
         return new_node
+
+
 
 
     def _simulate(self, node):
         #print(node.board_state)
         if node.leaf_node:
+            self._apply_simulation(node,node.winner)
             return node.win_stats, node.simulation_count
 
         if len(node.children) != 0:
@@ -95,36 +109,40 @@ class Monte_Carlo:
                 winner_stats[player_id] = 0
             while not que.empty():
                 winner_id = que.get()
-                if winner_id is not None:
-                    winner_stats[winner_id] += 1
+                self._apply_simulation(node,winner_id)
 
-                else:
-                    # Tie
-                    for player_id in self.get_player_ids():
-                        winner_stats[player_id] += 0.5
-
-            node.win_stats = winner_stats
-            node.simulation_count = len(node.children)
             return node.win_stats, node.simulation_count
 
     def _playout(self, node, parent_owner):
-        node.simulation_count += 1
-
         score_table = self.get_score_table(node.board_state)
         for player_id in score_table:
 
             if score_table[player_id] is None:
                 node.leaf_node = True
-                for player_id in node.win_stats:
-                    node.win_stats[player_id] = 0.5
+                node.winner = None
+                self._apply_simulation(node,player_id)
                 return None
 
             if math.isinf(score_table[player_id]) and score_table[player_id] > 0:
                 node.leaf_node = True
-                node.win_stats[player_id] += 1
-                return parent_owner
+                node.winner = player_id
+                self._apply_simulation(node,player_id)
+                return player_id
 
-        return self._deep_playout(node.board_state, node.owner)
+        winner_id = self._deep_playout(node.board_state, node.owner)
+        self._apply_simulation(node,winner_id)
+        return winner_id
+
+
+
+    def _apply_simulation(self, node, winner_id):
+        node.simulation_count += 1
+        if winner_id is None:
+            for pid in node.win_stats:
+                node.win_stats[pid] += 0.5
+        else:
+            node.win_stats[winner_id] += 1
+
 
     def _deep_playout(self, board, player_id):
         score_table = self.get_score_table(board)
@@ -132,28 +150,89 @@ class Monte_Carlo:
             if score_table[pid] is None:
                 return None
             if math.isinf(score_table[pid]) and score_table[pid] > 0:
+                #print(f"{pid} WON:")
+                #self.print_grid(board)
                 return pid
 
         moves_choice = self.get_next_moveset(board, player_id)
         chosen = random.choice(moves_choice)
         return self._deep_playout(chosen[1], self.get_next_player(player_id))
 
+    # def print_grid(self, grid):
+    #
+    #     # for col in grid:
+    #     #    print(col)
+    #     print("---------")
+    #     for row_num in range(5, -1, -1):
+    #         row = [column[row_num] for column in grid]
+    #         print("|", end='')
+    #         for c in row:
+    #             s = " "
+    #             if c == 'o':
+    #                 # sys.stdout.buffer.write(TestText2)
+    #                 s = 'O'
+    #                 # s = b'●'
+    #             elif c == 'x':
+    #                 # sys.stdout.buffer.write(TestText2)
+    #                 s = 'X'
+    #                 # s = b'○'
+    #             print(s, end='')
+    #         print("|")
+    #     print("|0123456|", flush=True)
+
     def get_ideal_move(self, board, player_id, max_depth):
         # will return a move_id
-
+        root_node = None
+        # if self.get_board_string(board) in self.node_catalogue:
+        #     root_node = self.node_catalogue[self.get_board_string(board)]
+        # else:
         root_node = self.create_root_node(board, player_id)
-        for i in range(50):
+        #
+        # timeout = datetime.now()
+        # while (datetime.now()-timeout).total_seconds() < self.time_limit:
+        #     self._simulate(root_node)
+
+        for i in range(21):
             self._simulate(root_node)
 
         most_sims = -1
         ideal_move = -1
+        max_wins = -1
         for child_node in root_node.children:
             if child_node.simulation_count > most_sims:
                 ideal_move = child_node.move_id
                 most_sims = child_node.simulation_count
+                max_wins = child_node.win_stats[player_id]
+            if child_node.simulation_count == most_sims and child_node.win_stats[player_id] > max_wins:
+                ideal_move = child_node.move_id
+                max_wins = child_node.win_stats[player_id]
 
-
+        self._print_tree(root_node)
         return ideal_move
+
+
+    def _print_tree(self, root, width=1000):
+        level = [root]
+        while len(level) > 0:
+            self._print_level(level, width)
+            next_level = []
+            for node in level:
+                #if len(node.children) > 0:
+                next_level.extend(node.children)
+                #else:
+                #    next_level.extend(['']*7)
+            level = next_level
+
+
+    def _node_string(self, node):
+        return f"{node.win_stats[self.get_player_ids()[0]]}/{node.simulation_count}"
+
+    def _print_level(self, level, width):
+        spacing = int(width/len(level))
+        for node in level:
+            print(f"{self._node_string(node):^{spacing}}", end='')
+        print()
+
 
 
     def get_score_table(self, board):
@@ -174,3 +253,6 @@ class Monte_Carlo:
     def get_player_ids(self):
         raise NotImplementedError
         #return ['r','y']
+
+    def get_board_string(self, board):
+        raise NotImplementedError
